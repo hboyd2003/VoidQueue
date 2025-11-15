@@ -1,0 +1,8 @@
+.gradle
+build.gradle.local
+build/
+.idea
+VoidQueueAPI/build
+run
+buildSrc/.gradle
+buildSrc/build

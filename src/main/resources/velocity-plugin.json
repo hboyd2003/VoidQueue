@@ -1,0 +1,25 @@
+{
+  "id": "voidqueue",
+  "name": "VoidQueue",
+  "version": "${version}",
+  "authors": ["Harrison Boyd"],
+  "dependencies": [
+    {
+      "id": "prometheus-exporter",
+      "optional": true
+    },
+    {
+      "id": "platform-detection",
+      "optional": true
+    },
+    {
+      "id": "proxydiscord",
+      "optional": true
+    },
+    {
+      "id": "vanishbridge",
+      "optional": true
+    }
+  ],
+  "main": "dev.hboyd.voidQueue.VoidQueuePlugin"
+}

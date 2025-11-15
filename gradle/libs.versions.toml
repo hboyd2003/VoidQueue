@@ -1,0 +1,37 @@
+[versions]
+velocityApi = "3.4.0-SNAPSHOT"
+shadow = "9.2.2"
+cloud = "1.8.4"
+vanishBridge = "2.0-SNAPSHOT"
+jetbrainsAnnotations = "26.0.2"
+proxyDiscordApi="1.2"
+prometheusExporter = "3.0-SNAPSHOT"
+prometheus = "1.3.10"
+#limboApi="c463aeb:limboapi-1.1.27-SNAPSHOT@jar" # Classifier is used here to specify file name via an Ivy repo pattern
+limboApi="1.1.27-prsmo-SNAPSHOT"
+runVelocity="2.3.1"
+luckPerms="5.4"
+configurate="4.3.1"
+commandAPI="11.0.0"
+
+[libraries]
+velocityApi = { group = "com.velocitypowered", name = "velocity-api", version.ref="velocityApi" }
+velocity = { group = "com.velocitypowered", name = "velocity-proxy", version.ref="velocityApi" }
+cloudVelocity = { group = "cloud.commandframework", name = "cloud-velocity", version.ref="cloud" }
+cloudMinecraftExtras = { group = "cloud.commandframework", name = "cloud-minecraft-extras", version.ref="cloud" }
+cloudAnnotations = { group = "cloud.commandframework", name = "cloud-annotations", version.ref="cloud" }
+vanishBridgeHelper = { group = "uk.co.notnull", name = "VanishBridge-helper", version.ref="vanishBridge" }
+jetbrainsAnnotations = { group = "org.jetbrains", name = "annotations", version.ref="jetbrainsAnnotations" }
+proxyDiscordApi = { group = "uk.co.notnull", name = "ProxyDiscordAPI", version.ref="proxyDiscordApi" }
+prometheusExporter =  { group = "uk.co.notnull", name = "MinecraftPrometheusExporter-velocity", version.ref  = "prometheusExporter" }
+prometheusCore = { group = "io.prometheus", name = "prometheus-metrics-core", version.ref="prometheus" }
+#limboApi = { group = "maven.modrinth.workaround", name = "limboApi", version.ref="limboApi" }
+limboApi = { group = "net.elytrium.limboapi", name = "api", version.ref="limboApi" }
+luckPerms = { group = "net.luckperms", name = "api", version.ref="luckPerms"}
+configurate = { group = "org.spongepowered", name = "configurate-yaml", version.ref="configurate"}
+commandAPI = { group = "dev.jorel", name = "commandapi-velocity-shade", version.ref="commandAPI"}
+
+
+[plugins]
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+runVelocity = { id = "xyz.jpenilla.run-velocity", version.ref = "runVelocity" }

@@ -1,0 +1,172 @@
+/*
+ * VoidQueue, a high-performance velocity queueing solution
+ *
+ * Copyright (c) 2025 Harrison Boyd
+ *
+ * Some portions of this file were taken from https://github.com/JLyne/ProxyQueues
+ * These portions are Copyright (c) 2025 James Lyne
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+package dev.hboyd.voidQueue.api.queues;
+
+import com.velocitypowered.api.plugin.PluginContainer;
+import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
+import net.elytrium.limboapi.api.player.LimboPlayer;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+
+@SuppressWarnings("unused")
+// TODO: Update to follow new implementation
+public interface VoidQueue {
+
+    void addPlayer(LimboPlayer limboPlayer);
+
+    /**
+     * Add a player to a queue.
+     * If the player is already in the queue, but disconnected from the proxy, their current queue position and type will be used
+     * Otherwise the provided queueType will be used, and the player will be added to the back of the queue
+     * @param limboPlayer the player to add
+     */
+    void addPlayer(LimboPlayer limboPlayer, QueueType queueType);
+
+    /**
+     * Removes the player from the queue, and updates connected caches
+     * @param player - The player
+     * @param connected - Whether player has now connected to the queued server, for cache updates
+     */
+    void removePlayer(QueuePlayer player, boolean connected);
+
+    /**
+     * Removes the player from the queue, and updates connected caches
+     * @param player - The player
+     * @param connected - Whether player has now connected to the queued server, for cache updates
+     */
+    void removePlayer(Player player, boolean connected);
+
+    /**
+     * Removes the player from the queue, and updates connected caches
+     * @param limboPlayer - The player
+     * @param connected - Whether player has now connected to the queued server, for cache updates
+     */
+    void removePlayer(LimboPlayer limboPlayer, boolean connected);
+
+    /**
+     * Removes the player from the queue, and updates connected caches
+     * @param uuid - The uuid of the player
+     * @param connected - Whether player has now connected to the queued server, for cache updates
+     */
+    void removePlayer(UUID uuid, boolean connected);
+
+    void destroy();
+
+    void clear();
+
+    /**
+     * Returns whether the player is in this queue
+     * @param player - The player
+     * @return Whether the player is queued
+     */
+    boolean isPlayerQueued(Player player);
+
+    boolean isPlayerQueued(UUID uuid);
+
+    Optional<QueuePlayer> getQueuePlayer(Player player, boolean strict);
+
+    Optional<QueuePlayer> getQueuePlayer(UUID uuid);
+
+    Optional<QueuePlayer> getQueuePlayer(String username);
+
+    /**
+     * Returns whether the queue is active, and that players trying to join should be added to it
+     * @return added or not
+     */
+    boolean isActive();
+
+    boolean isServerFull(QueueType queueType);
+
+    int getQueuedLimit();
+
+    void setQueuedLimit(int limit);
+
+    int getConnectedPlayerLimit();
+
+    int getPriorityReservedSlots();
+
+    int getStaffReservedSlots();
+
+    int getQueuedCount(QueueType queueType);
+
+    int getConnectedCount();
+
+    int getConnectedCount(QueueType queueType);
+
+    int getSlotsUsed(QueueType queueType);
+
+    QueuePlayer[] getTopPlayers(QueueType queueType, int count);
+
+    List<RegisteredServer> getServers();
+
+    void setDelayLength(int delayLength);
+
+    void setConnectedPlayerLimit(int connectedPlayerLimit);
+
+    void setPriorityReservedSlots(int priorityReservedSlots);
+
+    void setStaffReservedSlots(int staffReservedSlots);
+
+    RegisteredServer getNextServer(QueuePlayer queuePlayer);
+
+    /**
+     * Pauses the queue, preventing players from being connected to the server even when space exists.
+     * This is recommended for situations where players will be unable to join servers, i.e lockdowns or restarts.
+     * A plugin can have one active pause at a time, calling addPause again will replace any existing pause for that plugin.
+     * @param plugin - The plugin pausing the queue
+     * @param reason - The reason for the pause
+     */
+    void addPause(Object plugin, String reason);
+
+    /**
+     * Removes a pause previously added by addPause.
+     * The queue will be unpaused if no pauses remain active.
+     * @param plugin - The plugin unpausing the queue
+     */
+    void removePause(Object plugin);
+
+    /**
+     * Returns whether the given plugin has an active pause
+     * @param plugin - The plugin to check
+     */
+    boolean hasPause(Object plugin);
+
+    /**
+     * Returns whether any pauses exist
+     */
+    boolean isPaused();
+
+    /**
+     * Returns all active pauses
+     */
+    Map<PluginContainer, String> getPauses();
+}

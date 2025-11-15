@@ -1,0 +1,51 @@
+/*
+ * VoidQueue, a high-performance velocity queueing solution
+ *
+ * Copyright (c) 2025 Harrison Boyd
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+package dev.hboyd.voidQueue.configuration.serializer;
+
+import org.jetbrains.annotations.Nullable;
+import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.serialize.SerializationException;
+import org.spongepowered.configurate.serialize.TypeSerializer;
+import dev.hboyd.voidQueue.queues.NotifyMethod;
+
+import java.lang.reflect.Type;
+
+public class InformMethodSerializer implements TypeSerializer<NotifyMethod> {
+    public static final InformMethodSerializer INSTANCE = new InformMethodSerializer();
+
+    @Override
+    public NotifyMethod deserialize(Type type, ConfigurationNode node) throws SerializationException {
+        try {
+            return NotifyMethod.valueOf(node.getString());
+        } catch (IllegalArgumentException e) {
+            throw new SerializationException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void serialize(Type type, @Nullable NotifyMethod notifyMethod, ConfigurationNode node) throws SerializationException {
+        if (notifyMethod == null) throw new SerializationException("NotifyMethod cannot be null");
+        node.set(notifyMethod.name());
+    }
+}
