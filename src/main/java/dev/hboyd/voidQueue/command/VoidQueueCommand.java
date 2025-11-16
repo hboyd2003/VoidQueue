@@ -37,7 +37,7 @@ import dev.jorel.commandapi.executors.CommandArguments;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.translation.Argument;
 import dev.hboyd.voidQueue.api.queues.QueueType;
-import dev.hboyd.voidQueue.command.argument.QueuePlayerArgument;
+import dev.hboyd.voidQueue.command.argument.TrackedPlayerArgument;
 import dev.hboyd.voidQueue.queues.QueueRouterService;
 import dev.hboyd.voidQueue.queues.QueueStore;
 import dev.hboyd.voidQueue.queues.TrackedPlayer;
@@ -82,7 +82,7 @@ public class VoidQueueCommand {
 
         CommandAPICommand kickCommand = new CommandAPICommand("kick")
                 .withPermission(Constants.BASE_PERM + "kick")
-                .withOptionalArguments(new QueuePlayerArgument("player", queuedPlayerProvider))
+                .withOptionalArguments(new TrackedPlayerArgument("player", queuedPlayerProvider))
                 .executes(VoidQueueCommand::kickFromQueue);
 
         CommandAPICommand clearCommand = new CommandAPICommand("clear")
@@ -91,7 +91,7 @@ public class VoidQueueCommand {
 
         CommandAPICommand pullCommand = new CommandAPICommand("pull")
                 .withPermission(Constants.BASE_PERM + "pull")
-                .withOptionalArguments(new QueuePlayerArgument("player", onlineQueuedPlayerProvider))
+                .withOptionalArguments(new TrackedPlayerArgument("player", onlineQueuedPlayerProvider))
                 .executes(VoidQueueCommand::pullPastQueue);
 
         CommandAPICommand flushCommand = new CommandAPICommand("flush")

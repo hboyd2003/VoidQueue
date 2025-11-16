@@ -40,14 +40,14 @@ import dev.hboyd.voidQueue.queues.TrackedPlayer;
 import java.util.Collection;
 import java.util.function.Supplier;
 
-public class QueuePlayerArgument extends SafeOverrideableArgument<TrackedPlayer, String> implements GreedyArgument {
+public class TrackedPlayerArgument extends SafeOverrideableArgument<TrackedPlayer, String> implements GreedyArgument {
     private final Supplier<Collection<TrackedPlayer>> trackedPlayerSupplier;
     public static final DynamicCommandExceptionType ERROR_UNKNOWN_PLAYER = new DynamicCommandExceptionType(username ->
             VelocityBrigadierMessage.tooltip(Component.translatable("queue.commands.player-argument.error.target-unknown",
                     Argument.string("player", (String) username))));
 
 
-    public QueuePlayerArgument(String nodeName, Supplier<Collection<TrackedPlayer>> trackedPlayerSupplier) {
+    public TrackedPlayerArgument(String nodeName, Supplier<Collection<TrackedPlayer>> trackedPlayerSupplier) {
         super(nodeName, StringArgumentType.greedyString(), s -> s);
         this.trackedPlayerSupplier = trackedPlayerSupplier;
         applySuggestions();
