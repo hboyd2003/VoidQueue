@@ -37,9 +37,6 @@ import java.util.List;
 
 @ConfigSerializable
 public class VoidQueueConfig {
-
-
-
     @Comment("Total number of players allowed in the queue. -1 to disable")
     @Constraints.Min(-1)
     public int queuePlayerLimit = -1;
@@ -79,7 +76,7 @@ public class VoidQueueConfig {
     public String staffPermission = "voidqueue.staff";
 
     @Comment("List of kick reasons that should be considered fatal. If a player gets kicked from a queued server with one of these reasons, they will be removed from the queue without retrying. Accepts partial reasons")
-    public List<String> fatalErrors = List.of();
+    public List<String> fatalErrors = List.of("Kicked from server", "unable to connect to server");
 
     @Comment("Methods to notify the player that they are in the queue. Currently supports: BOSSBAR, ACTIONBAR, TEXT, TITLE")
     public List<NotifyMethod> notifyMethods = List.of(NotifyMethod.TITLE);

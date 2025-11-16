@@ -36,6 +36,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.scheduler.ScheduledTask;
 import com.velocitypowered.api.scheduler.Scheduler;
+import dev.hboyd.voidQueue.utils.TranslationUtil;
 import net.elytrium.limboapi.api.Limbo;
 import net.elytrium.limboapi.api.LimboFactory;
 import net.elytrium.limboapi.api.chunk.Dimension;
@@ -165,11 +166,27 @@ public class VoidQueue {
     }
 
     @Subscribe
-    private void onKickedFromServer(KickedFromServerEvent event) {
+    private void onLimbo(LoginLimboRegisterEvent event) {
+        event.setOnKickCallback(this::onKickedFromServer);
+    }
+
+    private boolean onKickedFromServer(KickedFromServerEvent event) {
         Optional<TrackedPlayer> trackedPlayer = playerTracker.getQueuePlayer(event.getPlayer().getUniqueId());
-        if (trackedPlayer.isEmpty()) return;
+        if (trackedPlayer.isEmpty()) return false;
+
+        Component kickReason = event.getServerKickReason().orElse(Component.text("Unable to connect to server"));
+        if (event.kickedDuringServerConnect()) { // Failed to connect needs to rejoin
+            event.setResult(KickedFromServerEvent.DisconnectPlayer.create(kickReason));
+            return false;
+        }
+
+        String kickReasonString = TranslationUtil.toString(kickReason);
+        for (String fatalError : this.voidQueueConfig.fatalErrors) {
+            if (kickReasonString.toLowerCase().contains(fatalError.toLowerCase())) return false;
+        }
 
         this.queueRouterService.sendToLimbo(event.getPlayer()); // Requeue player
+        return true;
     }
 
     @Subscribe
@@ -220,7 +237,7 @@ public class VoidQueue {
             } else if (!disconnect.get().hasElapsed(voidQueueConfig.inGameDisconnectTimeout)) return;
 
             queueStore.removePlayer(trackedPlayer);
-            playerTracker.unTrackPlayer(trackedPlayer.getPlayer().getUniqueId());
+            playerTracker.unTrackPlayer(trackedPlayer);
         }
     }
 
@@ -397,7 +414,6 @@ public class VoidQueue {
             // Get the queue
             queueRouterService.sendToLimbo(player);
         });
-        //event.setOnKickCallback(this::onKickedFromServer);
     }
 
 }

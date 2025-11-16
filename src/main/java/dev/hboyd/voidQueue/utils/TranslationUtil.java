@@ -25,6 +25,13 @@ package dev.hboyd.voidQueue.utils;
 
 import net.kyori.adventure.text.Component;
 import dev.hboyd.voidQueue.api.MessageType;
+import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.kyori.adventure.translation.GlobalTranslator;
+import net.kyori.adventure.translation.Translator;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Locale;
 
 public class TranslationUtil {
     public static Component prefixComponent(Component component, MessageType messageType) {
@@ -38,5 +45,16 @@ public class TranslationUtil {
             case INFO -> Component.translatable("queue.prefix.info");
             case WARNING -> Component.translatable("queue.prefix.warning");
         };
+    }
+
+    public static String toString(@NotNull Component component) {
+        Translator translator = GlobalTranslator.translator();
+
+        if (component instanceof TranslatableComponent
+                && translator.canTranslate(((TranslatableComponent) component).key(), Locale.US)) {
+            component = GlobalTranslator.translator().translate((TranslatableComponent) component, Locale.US);
+        }
+
+        return PlainTextComponentSerializer.plainText().serialize(component);
     }
 }
