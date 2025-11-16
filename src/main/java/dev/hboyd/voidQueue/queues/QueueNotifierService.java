@@ -27,14 +27,16 @@
 package dev.hboyd.voidQueue.queues;
 
 import com.velocitypowered.api.plugin.PluginContainer;
-import com.velocitypowered.api.proxy.InboundConnection;
 import com.velocitypowered.api.proxy.Player;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.translation.Argument;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.util.Ticks;
 import org.jetbrains.annotations.NotNull;
 import dev.hboyd.voidQueue.api.queues.QueueType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.List;
@@ -46,6 +48,18 @@ public class QueueNotifierService {
             Title.Times.times(Ticks.duration(0),
                     Ticks.duration(100),
                     Ticks.duration(0));
+
+    private static final Sound PING_SOUND =
+            Sound.sound(Key.key("minecraft:block.note_block.bell"),
+                    Sound.Source.BLOCK,
+                    1f,
+                    1f);
+
+    private static final Sound VILLAGER_NO_SOUND =
+            Sound.sound(Key.key("minecraft:entity.villager.no"),
+                    Sound.Source.BLOCK,
+                    1f,
+                    1f);
 
     private final VoidQueue queue;
 	private List<NotifyMethod> notifyMethods;
@@ -112,12 +126,12 @@ public class QueueNotifierService {
 	}
 
     public void notifyPause() {
-        notifyAll(getPauseMessage());
+        notifyAll(getPauseMessage(), VILLAGER_NO_SOUND);
     }
 
     public void notifyPause(@NotNull TrackedPlayer trackedPlayer) {
         trackedPlayer.getPlayer().sendMessage(getPauseMessage());
-
+        trackedPlayer.getLimboPlayer().ifPresent(limboPlayer -> limboPlayer.playSound(VILLAGER_NO_SOUND));
     }
 
     private Component getPauseMessage() {
@@ -131,18 +145,25 @@ public class QueueNotifierService {
     }
 
     public void notifyResume() {
-        notifyAll(Component.translatable("queue.notify.unpaused"));
+        notifyAll(Component.translatable("queue.notify.unpaused"), PING_SOUND);
     }
 
     private void notifyAll(Component message) {
+        notifyAll(message, null);
+    }
+
+    private void notifyAll(Component message, @Nullable Sound sound) {
         QueueStore queueStore = queue.getQueueStore();
         PlayerTracker playerTracker = queue.getPlayerTracker();
 
         playerTracker.getTrackedPlayers().stream()
                 .filter(queueStore::isQueued)
-                .map(TrackedPlayer::getPlayer)
-                .filter(InboundConnection::isActive)
-                .forEach(p -> p.sendMessage(message));
+                .filter(trackedPlayer -> trackedPlayer.getPlayer().isActive())
+                .filter(trackedPlayer -> trackedPlayer.getLimboPlayer().isPresent())
+                .forEach(trackedPlayer -> {
+                    trackedPlayer.getPlayer().sendMessage(message);
+                    if (sound != null) trackedPlayer.getLimboPlayer().get().playSound(sound);
+                });
     }
 
     public void notifyPositions() {
@@ -159,6 +180,8 @@ public class QueueNotifierService {
         Iterator<TrackedPlayer> queueIterator = queueStore.getQueueIterator(queueType);
         for (int i = 1; queueIterator.hasNext(); i++) {
             TrackedPlayer trackedPlayer = queueIterator.next();
+            if (!trackedPlayer.getPlayer().isActive()) continue;
+
             notifyPosition(trackedPlayer.getPlayer(),  "queue.notify." + queueType.name().toLowerCase(), i, queuedCount);
         }
 
