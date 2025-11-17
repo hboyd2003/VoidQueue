@@ -213,24 +213,26 @@ public class VoidQueue {
         queueStore.removePlayer(trackedPlayer.get());
     }
 
-
     public void moveQueue() {
         if (isServerFull(QueueType.NORMAL)
                 && isServerFull(QueueType.PRIORITY)
                 && isServerFull(QueueType.STAFF)) return;
-        TrackedPlayer trackedPlayer;
+        Optional<TrackedPlayer> trackedPlayer = Optional.empty();
 
-        if (!isServerFull(QueueType.STAFF) && queueStore.hasNextIdleActive(QueueType.STAFF)) {
-            trackedPlayer = queueStore.nextIdleActive(QueueType.STAFF).orElseThrow();
-        } else if (!isServerFull(QueueType.PRIORITY) && queueStore.hasNextIdleActive(QueueType.PRIORITY) && !isPaused()) {
-            trackedPlayer = queueStore.nextIdleActive(QueueType.PRIORITY).orElseThrow();
-        } else if (!isServerFull(QueueType.NORMAL) && queueStore.hasNextIdleActive(QueueType.NORMAL) && !isPaused()) {
-            trackedPlayer = queueStore.nextIdleActive(QueueType.NORMAL).orElseThrow();
-        } else {
-            return;
+
+        if (!isServerFull(QueueType.STAFF)) {
+            trackedPlayer = queueStore.nextIdleActive(QueueType.STAFF);
+        }
+        if (!isPaused()) {
+            if (trackedPlayer.isEmpty() && !isServerFull(QueueType.NORMAL)) {
+                trackedPlayer = queueStore.nextIdleActive(QueueType.NORMAL);
+            }
+            if (trackedPlayer.isEmpty() && !isServerFull(QueueType.PRIORITY)) {
+                trackedPlayer = queueStore.nextIdleActive(QueueType.PRIORITY);
+            }
         }
 
-        queueRouterService.routeToServer(trackedPlayer);
+        trackedPlayer.ifPresent(queueRouterService::routeToServer);
     }
 
     public void pruneTrackedPlayers() {

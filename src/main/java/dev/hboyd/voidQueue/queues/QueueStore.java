@@ -78,26 +78,6 @@ public class QueueStore {
         return Optional.empty();
     }
 
-    // TODO: hasNextIdleActive should probably should just be removed since it does the same thing as nextIdleActive
-    public boolean hasNextIdleActive(QueueType queueType) {
-        ConcurrentLinkedQueue<TrackedPlayer> queue;
-        switch (queueType) {
-            case NORMAL -> queue = normalQueue;
-            case PRIORITY -> queue = priorityQueue;
-            case STAFF -> queue = staffQueue;
-            default -> throw new IllegalArgumentException("Unknown queue type");
-        }
-        for (TrackedPlayer trackedPlayer : queue) {
-            Optional<TrackedPlayer.ConnectionState> connectionState = trackedPlayer.getConnectionState();
-            if (trackedPlayer.getPlayer().isActive()
-                    && connectionState.isPresent()
-                    && connectionState.get() == TrackedPlayer.ConnectionState.LIMBO_JOIN)
-                return true;
-
-        }
-        return false;
-    }
-
     public TrackedPlayer peek(QueueType queueType) {
         return switch (queueType) {
             case NORMAL ->  normalQueue.peek();
@@ -108,22 +88,13 @@ public class QueueStore {
 
 
     public Optional<TrackedPlayer> nextIdleActive(QueueType queueType) {
-        ConcurrentLinkedQueue<TrackedPlayer> queue;
-        switch (queueType) {
-            case NORMAL -> queue = normalQueue;
-            case PRIORITY -> queue = priorityQueue;
-            case STAFF -> queue = staffQueue;
-            default -> throw new IllegalArgumentException("Unknown queue type");
-        }
-        for (TrackedPlayer trackedPlayer : queue) {
-            Optional<TrackedPlayer.ConnectionState> connectionState = trackedPlayer.getConnectionState();
-            if (trackedPlayer.getPlayer().isActive()
-                    && connectionState.isPresent()
-                    && connectionState.get() == TrackedPlayer.ConnectionState.LIMBO_JOIN)
-                return Optional.of(trackedPlayer);
+        ConcurrentLinkedQueue<TrackedPlayer> queue = getQueue(queueType);
 
-        }
-        return Optional.empty();
+        return queue.stream().filter(trackedPlayer ->
+                trackedPlayer.getPlayer().isActive()
+                        && trackedPlayer.getConnectionState().isPresent()
+                        && trackedPlayer.getConnectionState().get() == TrackedPlayer.ConnectionState.LIMBO_JOIN)
+                .findFirst();
     }
 
     public boolean isQueued(TrackedPlayer trackedPlayer) {

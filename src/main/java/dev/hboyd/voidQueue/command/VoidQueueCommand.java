@@ -207,11 +207,11 @@ public class VoidQueueCommand {
 
 
         for (QueueType queueType : QueueType.values()) {
-            while (queueStore.hasNextIdleActive(queueType) && (!voidQueue.isServerFull(queueType) || force)) {
-
-                TrackedPlayer trackedPlayer = queueStore.nextIdleActive(queueType).orElseThrow();
-                queueRouterService.routeToServer(trackedPlayer);
-                queueStore.removePlayer(trackedPlayer);
+            Optional<TrackedPlayer> trackedPlayer = queueStore.nextIdleActive(queueType);
+            while (trackedPlayer.isPresent() && (!voidQueue.isServerFull(queueType) || force)) {
+                queueRouterService.routeToServer(trackedPlayer.get());
+                queueStore.removePlayer(trackedPlayer.get());
+                trackedPlayer = queueStore.nextIdleActive(queueType);
             }
         }
 
