@@ -72,6 +72,7 @@ public class VoidQueue {
     private ScheduledTask queueNotifyTask;
 
     private int connectedPlayerLimit; // TODO: This should probably be handled in another way
+    private Integer queuedPlayerLimit;
 
     Collection<RegisteredServer> registeredServers;
     private final Limbo limboServer;
@@ -92,6 +93,10 @@ public class VoidQueue {
         this.connectedPlayerLimit = voidQueueConfig.connectedPlayerLimit;
         if (this.connectedPlayerLimit == -1)
             this.connectedPlayerLimit = proxyServer.getConfiguration().getShowMaxPlayers();
+
+        this.queuedPlayerLimit = voidQueueConfig.queuedPlayerLimit;
+        if (this.queuedPlayerLimit == -1)
+            this.queuedPlayerLimit = null;
 
         LimboFactory limboFactory = (LimboFactory) this.proxyServer.getPluginManager()
                 .getPlugin("limboapi")
@@ -145,7 +150,15 @@ public class VoidQueue {
 
     private void onLimboSpawn(LimboPlayer limboPlayer) {
         playerTracker.trackPlayer(limboPlayer, TrackedPlayer.ConnectionState.LIMBO_JOIN).thenAccept(trackedPlayer -> {
-            if (queueStore.isQueued(trackedPlayer)) return;
+            if (queueStore.isQueued(trackedPlayer)) {
+                if (!pauses.isEmpty()) queueNotifierService.notifyPause(trackedPlayer);
+                return;
+            }
+
+            if (queuedPlayerLimit != null && queueStore.getQueuedCount() > queuedPlayerLimit) {
+                playerTracker.unTrackPlayer(trackedPlayer);
+                queueRouterService.kick(trackedPlayer, Component.translatable("queue.errors.queue-full"));
+            }
 
             Optional<TrackedPlayer.Disconnect> disconnect = trackedPlayer.getLastDisconnect();
 
@@ -417,4 +430,7 @@ public class VoidQueue {
         return connectedPlayerLimit;
     }
 
+    public Optional<Integer> getQueuedPlayerLimit() {
+        return Optional.ofNullable(queuedPlayerLimit);
+    }
 }

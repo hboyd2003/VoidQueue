@@ -39,7 +39,7 @@ import java.util.List;
 public class VoidQueueConfig {
     @Comment("Total number of players allowed in the queue. -1 to disable")
     @Constraints.Min(-1)
-    public int queuePlayerLimit = -1;
+    public int queuedPlayerLimit = -1;
 
     @Comment("Total number of players allowed on the server (excludes queued). -1 to use velocity 'show-max-players' amount")
     @Constraints.Min(-1)

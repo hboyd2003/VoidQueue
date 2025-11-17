@@ -126,7 +126,7 @@ public class VoidQueueCommand {
         VoidQueuePlugin voidQueuePlugin = VoidQueuePlugin.getInstance();
         VoidQueue voidQueue = voidQueuePlugin.getVoidQueue();
         if (voidQueue.hasPause(voidQueuePlugin)) {
-            source.sendMessage(Component.translatable("queue.errors.queue-already-paused"));
+            source.sendMessage(Component.translatable("queue.commands.error.pause.already-paused"));
             return 0;
         }
 
