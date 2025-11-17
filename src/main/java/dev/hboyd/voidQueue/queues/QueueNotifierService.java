@@ -50,16 +50,14 @@ public class QueueNotifierService {
                     Ticks.duration(0));
 
     private static final Sound PING_SOUND =
-            Sound.sound(Key.key("minecraft:block.note_block.bell"),
-                    Sound.Source.BLOCK,
-                    1f,
-                    1f);
+                    Sound.sound().type(Key.key("minecraft:block.note_block.bell"))
+                            .seed(0L)
+                            .build();
 
     private static final Sound VILLAGER_NO_SOUND =
-            Sound.sound(Key.key("minecraft:entity.villager.no"),
-                    Sound.Source.BLOCK,
-                    1f,
-                    1f);
+                    Sound.sound().type(Key.key("minecraft:entity.villager.no"))
+                            .seed(0L)
+                            .build();
 
     private final VoidQueue queue;
 	private List<NotifyMethod> notifyMethods;
@@ -84,21 +82,22 @@ public class QueueNotifierService {
                 case ACTIONBAR -> {
                     key.append(".actionbar").append(queue.isPaused() ? ".paused" : ".active");
                     player.sendActionBar(Component.translatable(key.toString(),
-                            Argument.string("size", String.valueOf(position)),
-                            Argument.string("pos", String.valueOf(size))));
+                            Argument.string("pos", String.valueOf(position)),
+                            Argument.string("size", String.valueOf(size))));
                 }
                 case CHAT -> {
                     key.append(".chat").append(queue.isPaused() ? ".paused" : ".active");
                     player.sendActionBar(Component.translatable(key.toString(),
-                            Argument.string("size", String.valueOf(position)),
-                            Argument.string("pos", String.valueOf(size))));
+                            Argument.string("pos", String.valueOf(position)),
+                            Argument.string("size", String.valueOf(size))));
                 }
                 case TITLE -> {
                     key.append(".title").append(queue.isPaused() ? ".paused" : ".active");
                     Title title = Title.title(Component.translatable(key + ".title"),
                             Component.translatable(key + ".subtitle",
-                                    Argument.string("size", String.valueOf(position)),
-                                    Argument.string("pos", String.valueOf(size))), TITLE_TIMES);
+                                    Argument.string("pos", String.valueOf(position)),
+                                    Argument.string("size", String.valueOf(size))),
+                            TITLE_TIMES);
                     player.showTitle(title);
                 }
             }
@@ -175,16 +174,18 @@ public class QueueNotifierService {
     public void notifyPositions(QueueType queueType) {
         QueueStore queueStore = queue.getQueueStore();
 
-        int queuedCount = queueStore.getQueuedCount(queueType);
+        int queuedCount = queueStore.getQueuedActiveIdleCount(queueType);
 
         Iterator<TrackedPlayer> queueIterator = queueStore.getQueueIterator(queueType);
         for (int i = 1; queueIterator.hasNext(); i++) {
             TrackedPlayer trackedPlayer = queueIterator.next();
-            if (!trackedPlayer.getPlayer().isActive()) continue;
+            if (!trackedPlayer.getPlayer().isActive()) {
+                i--;
+                continue;
+            }
 
             notifyPosition(trackedPlayer.getPlayer(),  "queue.notify." + queueType.name().toLowerCase(), i, queuedCount);
         }
-
     }
 
     public void setNotifyMethods(List<NotifyMethod> notifyMethods) {
