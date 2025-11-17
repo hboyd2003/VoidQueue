@@ -152,9 +152,12 @@ public class VoidQueueCommand {
         voidQueue.getPlayerTracker().getTrackedPlayers().stream()
                 .filter(trackedPlayer -> voidQueue.getQueueStore().isQueued(trackedPlayer))
                 .forEach(trackedPlayer -> {
-                    voidQueue.getQueueRouterService().kick(trackedPlayer,
-                            Component.translatable("queue.errors.queue-cleared"));
+                    if (trackedPlayer.getPlayer().isActive())
+                        voidQueue.getQueueRouterService().kick(trackedPlayer,
+                                Component.translatable("queue.errors.queue-cleared"));
+
                     voidQueue.getQueueStore().removePlayer(trackedPlayer);
+                    voidQueue.getPlayerTracker().unTrackPlayer(trackedPlayer);
                 });
 
         source.sendMessage(Component.translatable("queue.commands.info.clear.success"));
@@ -168,7 +171,9 @@ public class VoidQueueCommand {
         }
 
         VoidQueue voidQueue = VoidQueuePlugin.getInstance().getVoidQueue();
-        voidQueue.getQueueRouterService().kick(trackedPlayer.get(), Component.translatable("queue.errors.queue-removed"));
+        if (trackedPlayer.get().getPlayer().isActive()) {
+            voidQueue.getQueueRouterService().kick(trackedPlayer.get(), Component.translatable("queue.errors.queue-removed"));
+        }
         voidQueue.getQueueStore().removePlayer(trackedPlayer.get());
         voidQueue.getPlayerTracker().unTrackPlayer(trackedPlayer.get());
 
