@@ -30,5 +30,10 @@ package dev.hboyd.voidQueue.api.queues;
 public enum QueueType {
 	NORMAL,
 	PRIORITY,
-	STAFF,
+	STAFF;
+
+    public String getNameTitleCase() {
+        return this.name().charAt(0) + this.name().substring(1).toLowerCase();
+    }
+
 }

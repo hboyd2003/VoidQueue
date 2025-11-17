@@ -369,16 +369,12 @@ public class VoidQueue {
 
     public Component getStatusMessage(QueueType queueType) {
         String message = """
-                <aqua>Queued: <yellow><queued>
+                <aqua>Queued:
+                    <aqua>Online: <yellow><queued_online>
+                    <aqua>Offline: <yellow><queued_offline>
                 <aqua>Slots used: <yellow><slots_used> / <reserved>
-                <aqua>Connected: <yellow><connected>
-                <aqua>Front 3: <yellow><first>, <second>, <third>""".stripIndent();
-
-        int reservedSlots = switch (queueType) {
-            case NORMAL -> connectedPlayerLimit - voidQueueConfig.priorityQueueReserved - voidQueueConfig.staffQueueReserved;
-            case PRIORITY -> voidQueueConfig.priorityQueueReserved;
-            case STAFF -> voidQueueConfig.staffQueueReserved;
-        };
+                <aqua>In Game: <yellow><connected>
+                <aqua>Front 3: <yellow><first>, <second>, <third>""".stripIndent().indent(4);
 
         Iterator<TrackedPlayer> trackedPlayerIterator = queueStore.getQueueIterator(queueType);
         String first = trackedPlayerIterator.hasNext() ? trackedPlayerIterator.next().getPlayer().getUsername() : "N/A";
@@ -386,7 +382,8 @@ public class VoidQueue {
         String third = trackedPlayerIterator.hasNext() ? trackedPlayerIterator.next().getPlayer().getUsername() : "N/A";
 
         return MiniMessage.miniMessage().deserialize(message,
-                Placeholder.unparsed("queued", String.valueOf(queueStore.getQueuedCount(queueType))),
+                Placeholder.unparsed("queued_online", String.valueOf(queueStore.getQueuedActiveIdleCount(queueType))),
+                Placeholder.unparsed("queued_offline", String.valueOf(queueStore.getQueuedInActiveCount(queueType))),
                 Placeholder.unparsed("slots_used", String.valueOf(getSlotsUsed(queueType))),
                 Placeholder.unparsed("reserved", String.valueOf(getReservedSlots(queueType))),
                 Placeholder.unparsed("connected", String.valueOf(playerTracker.getInGameCount(queueType))),
@@ -414,6 +411,10 @@ public class VoidQueue {
             // Get the queue
             queueRouterService.sendToLimbo(player);
         });
+    }
+
+    public int getConnectedPlayerLimit() {
+        return connectedPlayerLimit;
     }
 
 }

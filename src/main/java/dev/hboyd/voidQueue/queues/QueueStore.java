@@ -133,10 +133,38 @@ public class QueueStore {
     }
 
     public int getQueuedCount(QueueType queueType) {
+        return getQueue(queueType).size();
+    }
+
+    public int getQueuedActiveIdleCount(QueueType queueType) {
+        ConcurrentLinkedQueue<TrackedPlayer> queue = getQueue(queueType);
+
+        return (int) queue.stream().filter(trackedPlayer ->
+                trackedPlayer.getPlayer().isActive()
+                        && trackedPlayer.getConnectionState().isPresent()
+                        && trackedPlayer.getConnectionState().get() == TrackedPlayer.ConnectionState.LIMBO_JOIN)
+                .count();
+    }
+
+    public int getQueuedInActiveCount(QueueType queueType) {
+        ConcurrentLinkedQueue<TrackedPlayer> queue = getQueue(queueType);
+
+        return (int) queue.stream()
+                .filter(trackedPlayer -> !trackedPlayer.getPlayer().isActive())
+                .count();
+    }
+
+    public int getQueuedInActiveCount() {
+        return getQueuedInActiveCount(QueueType.NORMAL)
+                + getQueuedInActiveCount(QueueType.PRIORITY)
+                + getQueuedInActiveCount(QueueType.STAFF);
+    }
+
+    private ConcurrentLinkedQueue<TrackedPlayer> getQueue(QueueType queueType) {
         return switch (queueType) {
-            case NORMAL -> normalQueue.size();
-            case PRIORITY -> priorityQueue.size();
-            case STAFF -> staffQueue.size();
+            case NORMAL -> normalQueue;
+            case PRIORITY -> priorityQueue;
+            case STAFF -> staffQueue;
         };
     }
 

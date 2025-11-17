@@ -35,6 +35,8 @@ import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import dev.jorel.commandapi.executors.CommandArguments;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.translation.Argument;
 import dev.hboyd.voidQueue.api.queues.QueueType;
 import dev.hboyd.voidQueue.command.argument.TrackedPlayerArgument;
@@ -215,13 +217,26 @@ public class VoidQueueCommand {
     private static int status(CommandSource source, CommandArguments args) {
         VoidQueue voidQueue = VoidQueuePlugin.getInstance().getVoidQueue();
 
-        Component status = Component.text("Queue Status");
+        String baseStatusMessage = """
+                <aqua>Queue Status:
+                    <aqua>Server: <yellow><in_game> / <max_connected>
+                    <aqua>Queued: <yellow><queued> / <max_queued>
+                        <aqua>Queued offline: <yellow><queued_offline>
+                    <aqua>Pause count: <pause_count>""".stripIndent();
+
+
+        Component status = MiniMessage.miniMessage().deserialize(baseStatusMessage,
+                Placeholder.unparsed("in_game", String.valueOf(VoidQueuePlugin.getProxyServer().getAllPlayers().size())),
+                Placeholder.unparsed("max_connected", String.valueOf(voidQueue.getConnectedPlayerLimit())),
+                Placeholder.unparsed("pause_count", String.valueOf(voidQueue.getPauses().size())),
+                Placeholder.unparsed("queued", String.valueOf(voidQueue.getQueueStore().getQueuedCount())),
+                Placeholder.unparsed("max_queued", String.valueOf(voidQueue.getQueuedPlayerLimit().orElse(-1))),
+                Placeholder.unparsed("queued_offline", String.valueOf(voidQueue.getQueueStore().getQueuedInActiveCount())));
 
         for (QueueType queueType : QueueType.values()) {
             status = status
                     .appendNewline()
-                    .appendNewline()
-                    .append(Component.text(queueType.name() + ":"))
+                    .append(Component.text(queueType.getNameTitleCase() + ":"))
                     .appendNewline()
                     .append(voidQueue.getStatusMessage(queueType));
         }

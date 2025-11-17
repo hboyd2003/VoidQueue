@@ -176,4 +176,8 @@ public final class VoidQueuePlugin {
         return INSTANCE;
     }
 
+    public static ProxyServer getProxyServer() {
+        return INSTANCE.proxyServer;
+    }
+
 }
