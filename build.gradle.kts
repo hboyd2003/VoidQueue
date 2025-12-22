@@ -22,7 +22,7 @@
  */
 
 plugins {
-    id("proxy-queues.java-conventions")
+    id("void-queue.java-conventions")
     alias(libs.plugins.runVelocity)
     alias(libs.plugins.shadow)
 }

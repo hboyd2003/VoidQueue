@@ -5,7 +5,7 @@ plugins {
     `maven-publish`
 }
 
-group = "uk.co.notnull"
+group = "dev.hboyd"
 version = "1.5-SNAPSHOT"
 
 //https://github.com/gradle/gradle/issues/15383
