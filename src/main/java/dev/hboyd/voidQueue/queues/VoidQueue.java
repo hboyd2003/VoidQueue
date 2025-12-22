@@ -113,8 +113,9 @@ public class VoidQueue {
                 (float) 0.0);
 
         this.limboServer = limboFactory.createLimbo(queueWorld)
-                .setName("Queue")
+                .setName("VoidQueue")
                 .setWorldTime(18000)
+                .setDoDaylightCycle(false)
                 .setGameMode(GameMode.SPECTATOR)
                 .setViewDistance(2)
                 .setSimulationDistance(2);
