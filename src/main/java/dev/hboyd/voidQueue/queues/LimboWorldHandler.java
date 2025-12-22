@@ -23,7 +23,7 @@
 
 package dev.hboyd.voidQueue.queues;
 
-import net.elytrium.limboapi.api.Limbo;
+import net.elytrium.limboapi.api.LimboServer;
 import net.elytrium.limboapi.api.LimboSessionHandler;
 import net.elytrium.limboapi.api.player.LimboPlayer;
 
@@ -42,7 +42,7 @@ public class LimboWorldHandler implements LimboSessionHandler {
     }
 
     @Override
-    public void onSpawn(Limbo server, LimboPlayer player) {
+    public void onSpawn(LimboServer server, LimboPlayer player) {
         this.limboPlayer = player;
         this.limboPlayer.disableFalling();
 

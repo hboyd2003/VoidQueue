@@ -37,8 +37,8 @@ import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.scheduler.ScheduledTask;
 import com.velocitypowered.api.scheduler.Scheduler;
 import dev.hboyd.voidQueue.utils.TranslationUtil;
-import net.elytrium.limboapi.api.Limbo;
 import net.elytrium.limboapi.api.LimboFactory;
+import net.elytrium.limboapi.api.LimboServer;
 import net.elytrium.limboapi.api.chunk.Dimension;
 import net.elytrium.limboapi.api.chunk.VirtualWorld;
 import net.elytrium.limboapi.api.event.LoginLimboRegisterEvent;
@@ -75,7 +75,7 @@ public class VoidQueue {
     private Integer queuedPlayerLimit;
 
     Collection<RegisteredServer> registeredServers;
-    private final Limbo limboServer;
+    private final LimboServer limboServer;
 
     public VoidQueue(Logger logger,
                      Object plugin, // TODO: Should we register our own event handlers?

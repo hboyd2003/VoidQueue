@@ -25,7 +25,7 @@ package dev.hboyd.voidQueue.queues;
 
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
-import net.elytrium.limboapi.api.Limbo;
+import net.elytrium.limboapi.api.LimboServer;
 import net.elytrium.limboapi.api.LimboSessionHandler;
 import net.kyori.adventure.text.Component;
 import org.slf4j.Logger;
@@ -37,12 +37,12 @@ public class QueueRouterService {
     private final Logger logger;
 
     private Collection<RegisteredServer> servers;
-    private final Limbo limboServer;
+    private final LimboServer limboServer;
     private final Function<Player, LimboSessionHandler> limboSessionHandlerCreator;
 
     public QueueRouterService(Logger logger,
                               Collection<RegisteredServer> servers,
-                              Limbo limboServer,
+                              LimboServer limboServer,
                               Function<Player, LimboSessionHandler> limboSessionHandlerCreator) {
         this.logger = logger;
 
